@@ -1,18 +1,42 @@
-const WebSocket = require('ws');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <style>
+        #chat {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 300px;
+            height: 400px;
+            overflow-y: scroll;
+        }
+        #message {
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat"></div>
+    <input type="text" id="message" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
 
-const wss = new WebSocket.Server({ port: 8080 });
+    <script>
+        const ws = new WebSocket('ws://localhost:8080');
+        const chat = document.getElementById('chat');
 
-wss.on('connection', (ws) => {
-    ws.on('message', (message) => {
-        // Broadcast the received message to all clients
-        wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(message);
-            }
-        });
-    });
+        ws.onmessage = (event) => {
+            const message = document.createElement('div');
+            message.textContent = event.data;
+            chat.appendChild(message);
+        };
 
-    ws.send('Welcome to the chat!');
-});
-
-console.log('WebSocket server is running on ws://localhost:8080');
+        function sendMessage() {
+            const messageInput = document.getElementById('message');
+            ws.send(messageInput.value);
+            messageInput.value = '';
+        }
+    </script>
+</body>
+</html>
